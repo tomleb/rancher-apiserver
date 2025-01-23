@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"time"
 
 	"github.com/rancher/wrangler/v3/pkg/data"
 	"github.com/rancher/wrangler/v3/pkg/data/convert"
@@ -213,9 +214,10 @@ func DefaultByID(store Store, apiOp *APIRequest, schema *APISchema, id string) (
 }
 
 type WatchRequest struct {
-	Revision string
-	ID       string
-	Selector string
+	Revision     string
+	ID           string
+	Selector     string
+	DebounceRate time.Duration
 }
 
 var (
