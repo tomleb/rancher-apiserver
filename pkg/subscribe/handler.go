@@ -2,6 +2,7 @@ package subscribe
 
 import (
 	"encoding/json"
+	"fmt"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -22,10 +23,11 @@ type Subscribe struct {
 	Namespace       string `json:"namespace,omitempty"`
 	ID              string `json:"id,omitempty"`
 	Selector        string `json:"selector,omitempty"`
+	DebounceMs      int    `json:"debounceMs,omitempty"`
 }
 
 func (s *Subscribe) key() string {
-	return s.ResourceType + "/" + s.Namespace + "/" + s.ID + "/" + s.Selector
+	return s.ResourceType + "/" + s.Namespace + "/" + s.ID + "/" + s.Selector + "/" + fmt.Sprintf("%d", s.DebounceMs)
 }
 
 func NewHandler(getter SchemasGetter, serverVersion string) types.RequestListHandler {

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"sync"
+	"time"
 
 	"github.com/gorilla/websocket"
 	"github.com/rancher/apiserver/pkg/types"
@@ -72,9 +73,10 @@ func (s *WatchSession) stream(ctx context.Context, sub Subscribe, result chan<- 
 	apiOp.Namespace = sub.Namespace
 	apiOp.Schemas = schemas
 	c, err := schema.Store.Watch(apiOp, schema, types.WatchRequest{
-		Revision: sub.ResourceVersion,
-		ID:       sub.ID,
-		Selector: sub.Selector,
+		Revision:     sub.ResourceVersion,
+		ID:           sub.ID,
+		Selector:     sub.Selector,
+		DebounceRate: time.Duration(sub.DebounceMs) * time.Millisecond,
 	})
 	if err != nil {
 		return err
