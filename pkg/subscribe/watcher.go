@@ -69,6 +69,11 @@ func (s *WatchSession) stream(ctx context.Context, sub Subscribe, result chan<- 
 		return err
 	}
 
+	debounceMs := sub.DebounceMs
+	if debounceMs == 0 {
+		debounceMs = 5000
+	}
+
 	apiOp := s.apiOp.Clone().WithContext(ctx)
 	apiOp.Namespace = sub.Namespace
 	apiOp.Schemas = schemas
