@@ -219,7 +219,12 @@ type WatchRequest struct {
 	ID           string
 	Selector     string
 	DebounceRate time.Duration
+	Mode         string
 }
+
+var (
+	ModeNotification = "resource.changes"
+)
 
 var (
 	ChangeAPIEvent = "resource.change"

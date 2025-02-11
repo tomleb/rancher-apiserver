@@ -77,6 +77,7 @@ func (s *WatchSession) stream(ctx context.Context, sub Subscribe, result chan<- 
 		ID:           sub.ID,
 		Selector:     sub.Selector,
 		DebounceRate: time.Duration(sub.DebounceMs) * time.Millisecond,
+		Mode:         sub.Mode,
 	})
 	if err != nil {
 		return err

@@ -17,6 +17,7 @@ var upgrader = websocket.Upgrader{
 }
 
 type Subscribe struct {
+	Mode            string `json:"mode,omitempty"`
 	Stop            bool   `json:"stop,omitempty"`
 	ResourceType    string `json:"resourceType,omitempty"`
 	ResourceVersion string `json:"resourceVersion,omitempty"`
