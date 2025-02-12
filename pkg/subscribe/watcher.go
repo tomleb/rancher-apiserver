@@ -33,6 +33,7 @@ func (s *WatchSession) stop(sub Subscribe, resp chan<- types.APIEvent) {
 			Namespace:    sub.Namespace,
 			ID:           sub.ID,
 			Selector:     sub.Selector,
+			Mode:         sub.Mode,
 		}
 	}
 	delete(s.watchers, sub.key())
@@ -94,6 +95,7 @@ func (s *WatchSession) stream(ctx context.Context, sub Subscribe, result chan<- 
 		Namespace:    sub.Namespace,
 		ID:           sub.ID,
 		Selector:     sub.Selector,
+		Mode:         sub.Mode,
 	}
 
 	if c == nil {
@@ -187,6 +189,7 @@ func sendErr(resp chan<- types.APIEvent, err error, sub Subscribe) {
 		Namespace:    sub.Namespace,
 		ID:           sub.ID,
 		Selector:     sub.Selector,
+		Mode:         sub.Mode,
 		Error:        err,
 	}
 }
