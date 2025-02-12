@@ -215,6 +215,7 @@ func DefaultByID(store Store, apiOp *APIRequest, schema *APISchema, id string) (
 }
 
 type WatchRequest struct {
+	ResourceType string
 	Revision     string
 	ID           string
 	Selector     string
