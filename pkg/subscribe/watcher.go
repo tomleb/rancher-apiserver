@@ -82,7 +82,7 @@ func (s *WatchSession) stream(ctx context.Context, sub Subscribe, result chan<- 
 		Revision:     sub.ResourceVersion,
 		ID:           sub.ID,
 		Selector:     sub.Selector,
-		DebounceRate: time.Duration(sub.DebounceMs) * time.Millisecond,
+		DebounceRate: time.Duration(debounceMs) * time.Millisecond,
 		Mode:         sub.Mode,
 	})
 	if err != nil {
