@@ -28,7 +28,7 @@ type Subscribe struct {
 }
 
 func (s *Subscribe) key() string {
-	return s.ResourceType + "/" + s.Namespace + "/" + s.ID + "/" + s.Selector + "/" + fmt.Sprintf("%d", s.DebounceMs)
+	return s.ResourceType + "/" + s.Namespace + "/" + s.ID + "/" + s.Selector + "/" + fmt.Sprintf("%d", s.DebounceMs) + "/" + s.Mode
 }
 
 func NewHandler(getter SchemasGetter, serverVersion string) types.RequestListHandler {
