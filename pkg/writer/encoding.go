@@ -54,7 +54,7 @@ func (j *EncodingResponseWriter) convertList(apiOp *types.APIRequest, input type
 		converted := j.convert(apiOp, value)
 		collection.Data = append(collection.Data, converted)
 	}
-	span.AddEvent("converted all objects",
+	span.AddEvent("ran all formatters",
 		trace.WithAttributes(attribute.Int("count", len(input.Objects))),
 	)
 
@@ -92,10 +92,7 @@ func (j *EncodingResponseWriter) convert(context *types.APIRequest, input types.
 	j.addLinks(schema, context, input, rawResource)
 
 	if schema.Formatter != nil {
-		ctx, span := otel.Tracer.Start(context.Context(), "Formatter")
-		context = context.WithContext(ctx)
 		schema.Formatter(context, rawResource)
-		span.End()
 	}
 
 	return rawResource
