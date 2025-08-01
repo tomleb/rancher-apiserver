@@ -9,11 +9,14 @@ import (
 	"github.com/rancher/apiserver/pkg/builtin"
 	"github.com/rancher/apiserver/pkg/handlers"
 	"github.com/rancher/apiserver/pkg/metrics"
+	"github.com/rancher/apiserver/pkg/otel"
 	"github.com/rancher/apiserver/pkg/parse"
 	"github.com/rancher/apiserver/pkg/subscribe"
 	"github.com/rancher/apiserver/pkg/types"
 	"github.com/rancher/apiserver/pkg/writer"
 	"github.com/rancher/wrangler/v3/pkg/schemas/validation"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/trace"
 )
 
 type RequestHandler interface {
@@ -102,6 +105,13 @@ func (s *Server) Handle(apiOp *types.APIRequest) {
 }
 
 func (s *Server) handle(apiOp *types.APIRequest, parser parse.Parser) {
+	ctx, span := otel.Tracer.Start(apiOp.Context(), "apiserver.Server.handle",
+		trace.WithAttributes(attribute.String("path", apiOp.Request.URL.Path)),
+		trace.WithAttributes(attribute.String("query", apiOp.Request.URL.RawQuery)),
+	)
+	defer span.End()
+	apiOp = apiOp.WithContext(ctx)
+
 	if apiOp.Schemas == nil {
 		apiOp.Schemas = s.Schemas
 	}
@@ -137,6 +147,7 @@ func (s *Server) handle(apiOp *types.APIRequest, parser parse.Parser) {
 	if apiOp.Schema != nil && apiOp.Schema.RequestModifier != nil {
 		apiOp.Schema = apiOp.Schema.RequestModifier(apiOp, apiOp.Schema)
 	}
+	span.SetAttributes(attribute.String("schema", apiOp.Schema.ID))
 
 	requestStart := time.Now()
 	var code int
@@ -204,6 +215,10 @@ func (s *Server) handleOp(apiOp *types.APIRequest) (int, interface{}, error) {
 }
 
 func handleList(apiOp *types.APIRequest, custom types.RequestListHandler, handler types.RequestListHandler) (types.APIObjectList, error) {
+	ctx, span := otel.Tracer.Start(apiOp.Context(), "handleList")
+	defer span.End()
+	apiOp = apiOp.WithContext(ctx)
+
 	if custom != nil {
 		return custom(apiOp)
 	}

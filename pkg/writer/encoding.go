@@ -5,7 +5,10 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/rancher/apiserver/pkg/otel"
 	"github.com/rancher/apiserver/pkg/types"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/trace"
 )
 
 type EncodingResponseWriter struct {
@@ -25,6 +28,10 @@ func (j *EncodingResponseWriter) Write(apiOp *types.APIRequest, code int, obj ty
 }
 
 func (j *EncodingResponseWriter) WriteList(apiOp *types.APIRequest, code int, list types.APIObjectList) {
+	ctx, span := otel.Tracer.Start(apiOp.Context(), "WriteList")
+	defer span.End()
+	apiOp = apiOp.WithContext(ctx)
+
 	j.start(apiOp, code)
 	j.BodyList(apiOp, apiOp.Response, list)
 }
@@ -38,15 +45,23 @@ func (j *EncodingResponseWriter) BodyList(apiOp *types.APIRequest, writer io.Wri
 }
 
 func (j *EncodingResponseWriter) convertList(apiOp *types.APIRequest, input types.APIObjectList) *types.GenericCollection {
+	ctx, span := otel.Tracer.Start(apiOp.Context(), "convertList")
+	defer span.End()
+	apiOp = apiOp.WithContext(ctx)
+
 	collection := newCollection(apiOp, input)
 	for _, value := range input.Objects {
 		converted := j.convert(apiOp, value)
 		collection.Data = append(collection.Data, converted)
 	}
+	span.AddEvent("converted all objects",
+		trace.WithAttributes(attribute.Int("count", len(input.Objects))),
+	)
 
 	if apiOp.Schema.CollectionFormatter != nil {
 		apiOp.Schema.CollectionFormatter(apiOp, collection)
 	}
+	span.AddEvent("ran collection formatter")
 
 	if collection.Data == nil {
 		collection.Data = []*types.RawResource{}
@@ -77,7 +92,10 @@ func (j *EncodingResponseWriter) convert(context *types.APIRequest, input types.
 	j.addLinks(schema, context, input, rawResource)
 
 	if schema.Formatter != nil {
+		ctx, span := otel.Tracer.Start(context.Context(), "Formatter")
+		context = context.WithContext(ctx)
 		schema.Formatter(context, rawResource)
+		span.End()
 	}
 
 	return rawResource
