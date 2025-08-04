@@ -92,7 +92,10 @@ func (j *EncodingResponseWriter) convert(context *types.APIRequest, input types.
 	j.addLinks(schema, context, input, rawResource)
 
 	if schema.Formatter != nil {
+		ctx, span := otel.Tracer.Start(context.Context(), "formatters")
+		context = context.WithContext(ctx)
 		schema.Formatter(context, rawResource)
+		span.End()
 	}
 
 	return rawResource
