@@ -105,7 +105,7 @@ func (s *Server) Handle(apiOp *types.APIRequest) {
 }
 
 func (s *Server) handle(apiOp *types.APIRequest, parser parse.Parser) {
-	ctx, span := otel.Tracer.Start(apiOp.Context(), "apiserver.Server.handle",
+	ctx, span := otel.Start(apiOp.Context(), "apiserver.Server.handle",
 		trace.WithAttributes(attribute.String("path", apiOp.Request.URL.Path)),
 		trace.WithAttributes(attribute.String("query", apiOp.Request.URL.RawQuery)),
 	)
@@ -215,7 +215,7 @@ func (s *Server) handleOp(apiOp *types.APIRequest) (int, interface{}, error) {
 }
 
 func handleList(apiOp *types.APIRequest, custom types.RequestListHandler, handler types.RequestListHandler) (types.APIObjectList, error) {
-	ctx, span := otel.Tracer.Start(apiOp.Context(), "handleList")
+	ctx, span := otel.Start(apiOp.Context(), "handleList")
 	defer span.End()
 	apiOp = apiOp.WithContext(ctx)
 

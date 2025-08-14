@@ -28,7 +28,7 @@ func (j *EncodingResponseWriter) Write(apiOp *types.APIRequest, code int, obj ty
 }
 
 func (j *EncodingResponseWriter) WriteList(apiOp *types.APIRequest, code int, list types.APIObjectList) {
-	ctx, span := otel.Tracer.Start(apiOp.Context(), "WriteList")
+	ctx, span := otel.Start(apiOp.Context(), "WriteList")
 	defer span.End()
 	apiOp = apiOp.WithContext(ctx)
 
@@ -45,7 +45,7 @@ func (j *EncodingResponseWriter) BodyList(apiOp *types.APIRequest, writer io.Wri
 }
 
 func (j *EncodingResponseWriter) convertList(apiOp *types.APIRequest, input types.APIObjectList) *types.GenericCollection {
-	ctx, span := otel.Tracer.Start(apiOp.Context(), "convertList")
+	ctx, span := otel.Start(apiOp.Context(), "convertList")
 	defer span.End()
 	apiOp = apiOp.WithContext(ctx)
 
@@ -92,7 +92,7 @@ func (j *EncodingResponseWriter) convert(context *types.APIRequest, input types.
 	j.addLinks(schema, context, input, rawResource)
 
 	if schema.Formatter != nil {
-		ctx, span := otel.Tracer.Start(context.Context(), "formatters")
+		ctx, span := otel.Start(context.Context(), "formatters")
 		context = context.WithContext(ctx)
 		schema.Formatter(context, rawResource)
 		span.End()
