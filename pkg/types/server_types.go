@@ -198,6 +198,11 @@ type Store interface {
 	Watch(apiOp *APIRequest, schema *APISchema, w WatchRequest) (chan APIEvent, error)
 }
 
+type TracerStore interface {
+	StartTrace(apiOp *APIRequest, schema *APISchema)
+	StopTrace(apiOp *APIRequest, schema *APISchema)
+}
+
 func DefaultByID(store Store, apiOp *APIRequest, schema *APISchema, id string) (APIObject, error) {
 	list, err := store.List(apiOp, schema)
 	if err != nil {
